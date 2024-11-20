@@ -1,84 +1,329 @@
 <!DOCTYPE html>
-<!--
-
-
-
-
-
-
-Created by LAX1DUDE (do NOT contact)
-Ported to Khan Academy by ayunami2000#5250
-w/ help from Melvin4life#4876
-
-
-
-
-
-
-
-
-
-
-
-
--->
-<html>
+<html lang="en">
 <head>
-<title>Eaglercraft Singleplayer Test</title>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/eag-web-sp@1.0.4/classes1_mod.js"></script>
-<style type="text/css">
-a.nolink, a.nolink:link, a.nolink:hover, a.nolink:visited {
-	color: white;
-}
-a.nolink:active {
-	color: yellow;
-}
-#available {
-	position: fixed;
-	background-color: #333333;
-	top: 0px;
-	right: 0px;
-	padding: 10px 30px;
-	width:min(80vw,250px);
-	color:white;
-}
-#available_hide {
-	position: fixed;
-	top: 0px;
-	right: 0px;
-	margin: 10px;
-	padding: 2px;
-	font-weight: bold;
-	border: 1px solid white;
-	font-size: 12px;
-	line-height: 12px;
-	cursor: pointer;
-	background-color: #333333;
-}
-</style>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/eag-web-sp@1.0.4/assets_uri.js"></script>
-
-<script type="text/javascript">
-function base64ToUint8Array(base64) {
-    eval("function KAInfiniteLoopProtect(){}");
-    var binary_string = window.atob(base64);
-    var len = binary_string.length;
-    var bytes = new Uint8Array(len);
-    for (var i = 0; i < len; i++) {
-        bytes[i] = binary_string.charCodeAt(i);
-    }
-    return bytes;
-}
-window.assetsData=base64ToUint8Array(window.assetsUri.slice(28));
-window.addEventListener("load", function(){
-window.minecraftOpts = [
-	"game_frame","",
-];
-main();
-});
-</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JT Pong</title>
+    <style>
+        body {
+            background-color: #222;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        .menu {
+            text-align: center;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 25px;
+            font-size: 1.2rem;
+            color: #fff;
+            background-color: #4c6ef5;
+            border-radius: 8px;
+            margin: 15px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #3a59c1;
+            transform: scale(1.1);
+        }
+        canvas {
+            display: none; /* Hide the game canvas initially */
+        }
+        #returnMenuButton {
+            display: none;
+            padding: 12px 25px;
+            font-size: 1.2rem;
+            color: #fff;
+            background-color: #ff6347;
+            border-radius: 8px;
+            margin: 15px;
+            cursor: pointer;
+        }
+        .settings {
+            margin-top: 30px;
+        }
+        #controlsList {
+            display: none;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: left;
+        }
+        #controlsList ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        #controlsList li {
+            font-size: 1.2rem;
+            margin: 10px 0;
+        }
+        #winnerScreen {
+            display: none;
+            text-align: center;
+        }
+        .color-options {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .color-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
 </head>
-<body style="margin:0px;width:100vw;height:100vh;" id="game_frame"></body>
+<body>
+
+    <!-- Homepage Menu -->
+    <div id="homeMenu" class="menu">
+        <h1>JT Pong</h1>
+        <button class="button" id="startGameButton">Start Game</button>
+
+        <div class="settings">
+            <h3>Game Settings</h3>
+            <button class="button" id="controlsButton">Controls</button>
+            <button class="button" id="ballColorButton">Ball Color</button>
+        </div>
+    </div>
+
+    <!-- Controls List -->
+    <div id="controlsList">
+        <h2>Game Controls</h2>
+        <ul>
+            <li><strong>Left Paddle (Player 1):</strong> Use <strong>W</strong> to move up, <strong>S</strong> to move down.</li>
+            <li><strong>Right Paddle (Player 2):</strong> Use <strong>Arrow Up</strong> to move up, <strong>Arrow Down</strong> to move down.</li>
+            <li><strong>Pause Game:</strong> Press <strong>P</strong> to pause the game (you can also use the menu to return to the main menu).</li>
+        </ul>
+        <button class="button" id="closeControlsButton">Close</button>
+    </div>
+
+    <!-- Ball Color Selection Page -->
+    <div id="ballColorPage" style="display:none;">
+        <h2>Select Ball Color</h2>
+        <div class="color-options">
+            <div class="color-option" style="background-color: #ffffff;" onclick="setBallColor('white')"></div>
+            <div class="color-option" style="background-color: #ff0000;" onclick="setBallColor('red')"></div>
+            <div class="color-option" style="background-color: #0000ff;" onclick="setBallColor('blue')"></div>
+            <div class="color-option" style="background-color: #00ff00;" onclick="setBallColor('green')"></div>
+            <div class="color-option" style="background-color: #ffd700;" onclick="setBallColor('gold')"></div>
+            <div class="color-option" style="background-color: #800080;" onclick="setBallColor('purple')"></div>
+            <div class="color-option" style="background: linear-gradient(90deg, red, yellow, green, cyan, blue, violet);" onclick="setBallColor('rainbow')"></div>
+        </div>
+        <button class="button" id="returnToHomeButton">Back to Menu</button>
+    </div>
+
+    <!-- The Game Canvas and Return to Menu button -->
+    <canvas id="pong" width="800" height="600"></canvas>
+    <button id="returnMenuButton" onclick="returnToMenu()">Return to Menu</button>
+
+    <!-- Winner Screen -->
+    <div id="winnerScreen">
+        <h2 id="winnerMessage"></h2>
+        <button class="button" id="returnHomeButton" onclick="returnToMenu()">Return to Home</button>
+    </div>
+
+    <!-- Footer with Copyright Notice -->
+    <footer id="footer" style="position: absolute; bottom: 10px; width: 100%; text-align: center; color: #ff6347; font-size: 1rem; font-weight: bold;">
+        <p>&copy; 2024 JT Double S. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('pong');
+        const ctx = canvas.getContext('2d');
+        const homeMenu = document.getElementById('homeMenu');
+        const returnMenuButton = document.getElementById('returnMenuButton');
+        const controlsList = document.getElementById('controlsList');
+        const winnerScreen = document.getElementById('winnerScreen');
+        const winnerMessage = document.getElementById('winnerMessage');
+        const ballColorPage = document.getElementById('ballColorPage');
+        const startGameButton = document.getElementById('startGameButton');
+        const controlsButton = document.getElementById('controlsButton');
+        const ballColorButton = document.getElementById('ballColorButton');
+        const closeControlsButton = document.getElementById('closeControlsButton');
+        const returnToHomeButton = document.getElementById('returnToHomeButton');
+        const returnHomeButton = document.getElementById('returnHomeButton');
+        const footer = document.getElementById('footer');
+
+        // Default ball color
+        let ballColor = "#ffffff";  // Default white color
+
+        // Set constant ball speed
+        let ballSpeedX = 3;
+        let ballSpeedY = 3;
+
+        let leftPaddleY = canvas.height / 2 - 50, rightPaddleY = canvas.height / 2 - 50;
+        const paddleWidth = 10, paddleHeight = 100;
+        const paddleSpeed = 4;  // Paddle speed for smooth movement
+        let ballX = canvas.width / 2, ballY = canvas.height / 2, ballRadius = 10;
+        let leftScore = 0, rightScore = 0;
+
+        // Key states for continuous movement
+        let upPressed = false, downPressed = false, wPressed = false, sPressed = false;
+
+        let gameRunning = false;  // Flag to control game loop
+
+        // Start Game Function
+        startGameButton.addEventListener('click', function(event) {
+            event.preventDefault();
+            homeMenu.style.display = 'none';  // Hide the home menu
+            footer.style.display = 'none';    // Hide the copyright text
+            canvas.style.display = 'block';  // Show the canvas
+            gameRunning = true;  // Start the game loop
+            resetGame();
+            gameLoop();  // Start the game loop
+        });
+
+        // Ball Color Selection
+        function setBallColor(color) {
+            ballColor = color;
+            ballColorPage.style.display = 'none';
+            homeMenu.style.display = 'none';
+            canvas.style.display = 'block';
+            gameRunning = true;
+            resetGame();
+            gameLoop();
+        }
+
+        // Controls button
+        controlsButton.addEventListener('click', () => {
+            homeMenu.style.display = 'none';
+            controlsList.style.display = 'block';
+        });
+
+        closeControlsButton.addEventListener('click', () => {
+            controlsList.style.display = 'none';
+            homeMenu.style.display = 'block';
+        });
+
+        // Ball color button
+        ballColorButton.addEventListener('click', () => {
+            homeMenu.style.display = 'none';
+            ballColorPage.style.display = 'block';
+        });
+
+        // Return to Home button
+        function returnToMenu() {
+            winnerScreen.style.display = 'none';
+            homeMenu.style.display = 'block';
+            footer.style.display = 'block';
+            canvas.style.display = 'none';
+        }
+
+        // Reset Game
+        function resetGame() {
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+            leftPaddleY = canvas.height / 2 - 50;
+            rightPaddleY = canvas.height / 2 - 50;
+            leftScore = 0;
+            rightScore = 0;
+        }
+
+        // Game Loop (Continuous Update)
+        function gameLoop() {
+            if (!gameRunning) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw paddles and ball
+            ctx.fillStyle = ballColor;
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2, false);
+            ctx.fill();
+
+            ctx.fillStyle = "#ffffff";  // Paddle color
+            ctx.fillRect(0, leftPaddleY, paddleWidth, paddleHeight);
+            ctx.fillRect(canvas.width - paddleWidth, rightPaddleY, paddleWidth, paddleHeight);
+
+            // Draw scores
+            ctx.font = '30px Arial';
+            ctx.fillText(leftScore, canvas.width / 4, 50);
+            ctx.fillText(rightScore, 3 * canvas.width / 4, 50);
+
+            // Ball movement and collision detection
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            if (ballY + ballRadius > canvas.height || ballY - ballRadius < 0) {
+                ballSpeedY = -ballSpeedY;
+            }
+
+            if (ballX - ballRadius < paddleWidth && ballY > leftPaddleY && ballY < leftPaddleY + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            if (ballX + ballRadius > canvas.width - paddleWidth && ballY > rightPaddleY && ballY < rightPaddleY + paddleHeight) {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            // Update score
+            if (ballX - ballRadius < 0) {
+                rightScore++;
+                if (rightScore === 5) {
+                    gameWinner('Right');
+                } else {
+                    resetBall();
+                }
+            } else if (ballX + ballRadius > canvas.width) {
+                leftScore++;
+                if (leftScore === 5) {
+                    gameWinner('Left');
+                } else {
+                    resetBall();
+                }
+            }
+
+            // Paddle Movement
+            if (wPressed && leftPaddleY > 0) leftPaddleY -= paddleSpeed;
+            if (sPressed && leftPaddleY < canvas.height - paddleHeight) leftPaddleY += paddleSpeed;
+            if (upPressed && rightPaddleY > 0) rightPaddleY -= paddleSpeed;
+            if (downPressed && rightPaddleY < canvas.height - paddleHeight) rightPaddleY += paddleSpeed;
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Winner announcement
+        function gameWinner(player) {
+            gameRunning = false;
+            winnerScreen.style.display = 'block';
+            winnerMessage.textContent = player + " Player Wins!";
+            canvas.style.display = 'none';
+        }
+
+        // Ball reset
+        function resetBall() {
+            ballX = canvas.width / 2;
+            ballY = canvas.height / 2;
+            ballSpeedX = -ballSpeedX;
+        }
+
+        // Event listeners for paddle controls
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'w') wPressed = true;
+            if (e.key === 's') sPressed = true;
+            if (e.key === 'ArrowUp') upPressed = true;
+            if (e.key === 'ArrowDown') downPressed = true;
+            if (e.key === 'p') gameRunning = !gameRunning;  // Pause game
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'w') wPressed = false;
+            if (e.key === 's') sPressed = false;
+            if (e.key === 'ArrowUp') upPressed = false;
+            if (e.key === 'ArrowDown') downPressed = false;
+        });
+    </script>
+
+</body>
 </html>
